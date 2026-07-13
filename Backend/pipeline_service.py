@@ -18,7 +18,7 @@ from Backend.smog_predictor_bridge import SmogPredictorBridge
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SMOG_ROOT = Path(__file__).resolve().parents[3] / "smog"
+SMOG_ROOT = PROJECT_ROOT / "smog"
 SARIMA_ROOT = SMOG_ROOT / "artifacts" / "models" / "sarima_optimized"
 STACKING_PATH = SMOG_ROOT / "artifacts" / "models" / "stacking_model.pkl"
 GRU_PATH = PROJECT_ROOT / "gru_aqi_model.keras"

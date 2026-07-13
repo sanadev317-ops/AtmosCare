@@ -16,8 +16,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
-SMOG_ROOT = WORKSPACE_ROOT / "smog"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SMOG_ROOT = PROJECT_ROOT / "smog"
 MODEL_DIR = SMOG_ROOT / "artifacts" / "models"
 CONFIG_PATH = SMOG_ROOT / "ml_pipeline" / "config" / "config.yaml"
 

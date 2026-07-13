@@ -1,0 +1,31 @@
+{
+  "feature_names": [
+    "pm2_5_log",
+    "no2",
+    "so2",
+    "temperature_2m_mean",
+    "relative_humidity_2m_mean",
+    "wind_speed_10m_max",
+    "traffic_combined",
+    "crop_burning_intensity",
+    "pm_lag7",
+    "pm_lag14",
+    "pm_roll7",
+    "pm_roll14",
+    "pm_diff1",
+    "pm_diff3",
+    "pm_zscore7",
+    "no2_o3",
+    "temp_wind",
+    "month_sin",
+    "month_cos",
+    "doy_sin",
+    "doy_cos"
+  ],
+  "target_idx": 0,
+  "sequence_length": 60,
+  "forecast_horizon": 30,
+  "dropout_rate": 0.2,
+  "bias_correction_factor": 0.9359149585924342,
+  "trained_at": "20260710_161800"
+}

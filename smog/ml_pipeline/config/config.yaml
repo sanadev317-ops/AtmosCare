@@ -1,0 +1,247 @@
+# ============================================================================
+# PRODUCTION SMOG PREDICTION PIPELINE - OPTIMIZED CONFIG
+# ============================================================================
+
+# ─────────────────────────────────────────────────────────────────────────
+# DATA CONFIGURATION
+# ─────────────────────────────────────────────────────────────────────────
+data:
+  raw_path: "datasets/processed/pakistan_air_quality_final_clean.csv"
+  fallback_path: "datasets/processed/cleaned_smog_data.csv"
+  processed_dir: "datasets/processed"
+
+  use_multi_city: true
+  city_column: "city"
+  eval_city: "Lahore"
+
+  city_coords:
+    Lahore: {lat: 31.5204, lon: 74.3587}
+    Karachi: {lat: 24.8607, lon: 67.0011}
+    Islamabad: {lat: 33.6844, lon: 73.0479}
+
+# ─────────────────────────────────────────────────────────────────────────
+# FEATURE ENGINEERING
+# ─────────────────────────────────────────────────────────────────────────
+features:
+  target: "pm2_5"
+  forecast_horizon: 6
+
+  pollutants: ["pm2_5", "pm10", "co", "no2", "so2", "o3", "nh3"]
+  meteo: ["temperature", "humidity", "wind_speed", "wind_dir", "pressure", "precipitation"]
+
+  lag_steps: [1, 3, 6, 24, 168]
+  rolling_windows: [6, 24, 168]
+  cyclical_features: ["hour", "dayofweek", "month"]
+  weekly_fourier_order: 3
+
+  include_smog_season: true
+  include_rush_hour: true
+
+  interaction_terms:
+    - ["humidity", "wind_speed"]
+    - ["temperature", "nh3"]
+    - ["temperature", "so2"]
+
+# ─────────────────────────────────────────────────────────────────────────
+# VALIDATION
+# ─────────────────────────────────────────────────────────────────────────
+validation:
+  strategy: "walk_forward"
+
+  walk_forward:
+    train_size: 0.70
+    val_size: 0.15
+    test_size: 0.15
+    n_folds: 5
+
+  prevent_leakage: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# GRU MODEL (FAST TRAINING MODE)
+# ─────────────────────────────────────────────────────────────────────────
+gru_model:
+  sequence_length: 48
+
+  gru_units: [64, 32]
+  dense_units: [32, 16]
+
+  dropout_rate: 0.25
+  batch_size: 64
+  epochs: 30
+  learning_rate: 0.001
+
+  patience: 5
+  validation_split: 0.3
+
+  loss: "huber"
+  optimizer: "adam"
+
+  use_batch_norm: true
+  use_dropout: true
+  early_stopping: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# SARIMAX (FULL FIXED VERSION)
+# ─────────────────────────────────────────────────────────────────────────
+sarima_model:
+  order: [1, 0, 1]
+  seasonal_order: [1, 1, 1, 24]
+  seasonal_period: 24
+  search_seed: 42
+  soft_floor: 0.001
+  maxiter: 100
+  method: "lbfgs"
+  auto_tune: false
+  refit_on_full: true
+  enforce_stationarity: false
+  enforce_invertibility: false
+  
+residual_model:
+  enabled: true
+  model_type: "xgboost"
+  n_estimators: 300
+  max_depth: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.8
+  reg_alpha: 0.0
+  reg_lambda: 1.0
+  n_jobs: 4
+  random_state: 42
+
+# ─────────────────────────────────────────────────────────────────────────
+# HYBRID ENSEMBLE (BALANCED & STABLE)
+# ─────────────────────────────────────────────────────────────────────────
+hybrid_model:
+  gru_weight: 0.5
+  sarima_weight: 0.5
+
+  blending_method: "adaptive_gated_residual"
+  use_adaptive_gating: true
+  gate_method: "logistic_regression"
+  gate_threshold: 0.5
+  residual_correction_scale: 1.0
+
+  negative_r2_threshold: 0.05
+
+  use_residual_hybrid: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# HYPERPARAMETER TUNING
+# ─────────────────────────────────────────────────────────────────────────
+tuning:
+  use_optuna: true
+
+  optuna:
+    n_trials: 75
+    n_jobs: 2
+    timeout: 5400
+
+    sampler: "TPE"
+    pruner: "MedianPruner"
+
+    search_space:
+      gru_units_0: [96, 160]
+      gru_units_1: [48, 96]
+      learning_rate: [5e-4, 2e-3]
+      dropout_rate: [0.05, 0.25]
+      batch_size: [16, 32]
+
+# ─────────────────────────────────────────────────────────────────────────
+# EXPERIMENT TRACKING
+# ─────────────────────────────────────────────────────────────────────────
+mlflow:
+  enabled: true
+  tracking_uri: "./mlruns"
+  experiment_name: "smog_prediction_optimized"
+
+  autolog_enabled: true
+  autolog_models: true
+
+  log_metrics:
+    - rmse
+    - mae
+    - mape
+    - r2
+
+# ─────────────────────────────────────────────────────────────────────────
+# INTERPRETABILITY
+# ─────────────────────────────────────────────────────────────────────────
+interpretability:
+  use_shap: true
+
+  shap:
+    explainer_type: "deep"
+    n_samples: 150
+    background_samples: 100
+
+  generate_plots: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# OUTPUT SETTINGS
+# ─────────────────────────────────────────────────────────────────────────
+output:
+  model_dir: "artifacts/models"
+  results_dir: "artifacts/results"
+  logs_dir: "logs"
+
+  save_best_model: true
+  keep_last_n_checkpoints: 5
+  checkpoint_metric: "val_loss"
+
+  save_plots: true
+  plot_format: "png"
+  plot_dpi: 200
+
+# ─────────────────────────────────────────────────────────────────────────
+# LOGGING
+# ─────────────────────────────────────────────────────────────────────────
+logging:
+  level: "INFO"
+  log_file: "logs/pipeline.log"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MONGODB / REAL-TIME SYSTEM
+# ─────────────────────────────────────────────────────────────────────────────
+mongodb:
+  enabled: true
+  uri: "mongodb://localhost:27017"
+  database: "smog_system"
+  collection_prefix: ""
+
+security:
+  api_key_header: "X-API-Key"
+  device_api_key: ""
+
+realtime:
+  buffer_length: 60
+  default_alpha: 0.5
+  stacking_model_path: "artifacts/models/stacking_model.pkl"
+
+# ─────────────────────────────────────────────────────────────────────────
+# WEATHER API
+# ─────────────────────────────────────────────────────────────────────────
+weather_api:
+  enrich_training: true
+  timezone: "Asia/Karachi"
+  fill_only_missing: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# REPRODUCIBILITY
+# ─────────────────────────────────────────────────────────────────────────
+reproducibility:
+  seed: 42
+  tensorflow_seed: 42
+  numpy_seed: 42
+  deterministic: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# API CONFIG
+# ─────────────────────────────────────────────────────────────────────────
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+
+  min_sequence_length: 48
+  max_forecast_hours: 240

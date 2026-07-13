@@ -10,3 +10,5 @@ tensorflow
 joblib
 statsmodels
 pydantic
+xgboost
+pyyaml
