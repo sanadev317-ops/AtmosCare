@@ -28,9 +28,8 @@ source.exclude_dirs = tests, bin, venv, __pycache__, .buildozer, .history
 version = 1.0
 
 # (list) Application requirements
-# IMPORTANT: tensorflow / scikit-learn / pymongo cannot be packaged for Android.
-# Move ML + DB calls to your backend and reach them over HTTP via `requests`.
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,requests,plyer,urllib3,certifi,charset-normalizer,idna,pillow
+# MODIFIED: Removed version pins from kivy and kivymd. Buildozer needs to fetch matching recipes natively.
+requirements = python3,kivy,kivymd,requests,plyer,urllib3,certifi,charset-normalizer,idna,pillow
 
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/assets/logo.png
@@ -58,13 +57,19 @@ android.minapi = 21
 android.sdk = 33
 
 # (str) Android NDK version to use
-android.ndk = 25b
+# MODIFIED: Changed 25b to 25c. Kivy 2.3+ compilation fails on NDK 25b due to a known toolchain bug.
+android.ndk = 25c
+
+# ADDED: Forces Buildozer to download missing components like AIDL dynamically on the GitHub runner.
+android.skip_update = False
+
+# ADDED: Forces the Android SDK manager to accept licenses automatically, resolving your previous crash.
+android.accept_sdk_license = True
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 android.private_storage = True
 
 # (list) The Android archs to build for
-# Use arm64-v8a for modern phones; add armeabi-v7a if you also want older device support.
 android.archs = arm64-v8a, armeabi-v7a
 
 # (bool) enables Android auto backup feature (Android API >=23)
