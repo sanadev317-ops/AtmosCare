@@ -29,8 +29,7 @@ version = 1.0
 
 # (list) Application requirements
 # CRITICAL FIX: Explicitly pinning master branches allows compilation with Cython 3.x seamlessly.
-requirements = python3,kivy==master,kivymd==master,requests,plyer,urllib3,certifi,charset-normalizer,idna,pillow
-
+requirements = python3,kivy==2.3.1,kivymd==1.2.0,requests,plyer,urllib3,certifi,charset-normalizer,idna,pillow
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/assets/logo.png
 
