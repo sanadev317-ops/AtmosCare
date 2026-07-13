@@ -30,23 +30,26 @@ jobs:
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
             autoconf libtool pkg-config zlib1g-dev libncurses-dev \
             libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev \
-            build-essential ccache
+            build-essential ccache libgdbm-dev libc6-dev libsqlite3-dev \
+            libbz2-dev texinfo libasound2-dev libgstreamer1.0-dev \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good
 
-      - name: Install Buildozer
+      - name: Install Buildozer and Toolchain Requirements
         run: |
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          python -m pip install --upgrade pip
+          # Upgrading to cython 3.x is necessary for modern Kivy packaging on Python 3.10+
+          pip install wheel setuptools cython==3.0.11 buildozer
 
       - name: Cache Buildozer global directory
         uses: actions/cache@v4
         with:
           path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('Frontend/buildozer.spec') }}
+          # "v2" forces GitHub to clear the old, broken build cache and start clean
+          key: buildozer-v2-${{ runner.os }}-${{ hashFiles('Frontend/buildozer.spec') }}
 
       - name: Build APK (debug)
         working-directory: Frontend
         run: |
-          # Crucial: Automatically accepts Android SDK licenses in the Frontend workspace
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           buildozer -v android debug
 
@@ -54,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: atmoscare-debug-apk
-          # Crucial: Buildozer outputs to '.buildozer' hidden directory inside the working directory
-          path: Frontend/.buildozer/android/platform/build-armeabi-v7a_arm64-v8a/dists/*/build/outputs/apk/debug/*.apk
+          # Matching the exact multi-architecture directory buildozer generates inside Frontend
+          path: Frontend/.buildozer/android/platform/build-arm64-v8a_armeabi-v7a/dists/*/build/outputs/apk/debug/*.apk
