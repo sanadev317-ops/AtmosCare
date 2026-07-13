@@ -45,10 +45,14 @@ jobs:
 
       - name: Build APK (debug)
         working-directory: Frontend
-        run: buildozer -v android debug
+        run: |
+          # Crucial: Automatically accepts Android SDK licenses in the Frontend workspace
+          export APP_ANDROID_ACCEPT_SDK_LICENSE=1
+          buildozer -v android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: atmoscare-debug-apk
-          path: Frontend/bin/*.apk
+          # Crucial: Buildozer outputs to '.buildozer' hidden directory inside the working directory
+          path: Frontend/.buildozer/android/platform/build-armeabi-v7a_arm64-v8a/dists/*/build/outputs/apk/debug/*.apk
