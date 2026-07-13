@@ -28,6 +28,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip \
+            autoconf automake libtool libtool-bin libltdl-dev \
+            libtool-doc autoconf-archive \
             autoconf libtool pkg-config zlib1g-dev libncurses-dev \
             libncursesw5-dev libtinfo-dev cmake libffi-dev libssl-dev \
             build-essential ccache libgdbm-dev libc6-dev libsqlite3-dev \
