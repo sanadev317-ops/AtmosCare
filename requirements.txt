@@ -1,0 +1,11 @@
+kivy
+kivymd
+pymongo
+requests
+watchdog
+joblib
+numpy
+scikit-learn
+tensorflow
+matplotlib
+kivy-garden

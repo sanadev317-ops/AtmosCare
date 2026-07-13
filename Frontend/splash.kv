@@ -1,0 +1,125 @@
+<SplashScreen>:
+    FloatLayout:
+
+        # ── Solid navy background ─────────────────────────────────────
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint: 1, 1
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            md_bg_color: 0.08, 0.12, 0.22, 1
+
+        # ── Foreground content ────────────────────────────────────────
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(20)
+            padding: dp(40)
+
+            Widget:
+                size_hint_y: 1
+
+            # Decorative logo container with teal ring accent
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "center"
+                size_hint_y: None
+                height: dp(180)
+
+                MDBoxLayout:
+                    size_hint: None, None
+                    size: dp(160), dp(160)
+                    md_bg_color: 0.12, 0.17, 0.30, 1
+                    radius: [dp(80)]
+
+                    AnchorLayout:
+                        anchor_x: "center"
+                        anchor_y: "center"
+
+                        MDIcon:
+                            icon: "weather-hazy"
+                            font_size: "96sp"
+                            theme_text_color: "Custom"
+                            text_color: 0, 0.82, 0.76, 1
+
+            Widget:
+                size_hint_y: None
+                height: dp(10)
+
+            MDLabel:
+                text: "AtmosCare"
+                font_style: "H3"
+                halign: "center"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                size_hint_y: None
+                height: dp(48)
+
+            # Accent divider pill
+            AnchorLayout:
+                anchor_x: "center"
+                size_hint_y: None
+                height: dp(6)
+
+                MDBoxLayout:
+                    size_hint: None, None
+                    size: dp(60), dp(4)
+                    md_bg_color: 0, 0.69, 0.64, 1
+                    radius: [dp(2)]
+
+            MDLabel:
+                text: "Smart Air Quality Prediction"
+                halign: "center"
+                font_style: "Subtitle1"
+                theme_text_color: "Custom"
+                text_color: 0.75, 0.82, 0.92, 1
+                size_hint_y: None
+                height: dp(28)
+
+            MDLabel:
+                text: "Breathe smarter. Live healthier."
+                halign: "center"
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: 0, 0.82, 0.76, 1
+                size_hint_y: None
+                height: dp(20)
+
+            Widget:
+                size_hint_y: None
+                height: dp(30)
+
+            # Loading progress with teal accent
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint_x: 0.55
+                pos_hint: {"center_x": 0.5}
+                size_hint_y: None
+                height: dp(36)
+                spacing: dp(8)
+
+                MDProgressBar:
+                    value: 50
+                    color: 0, 0.82, 0.76, 1
+                    back_color: 0.18, 0.22, 0.32, 1
+                    size_hint_y: None
+                    height: dp(4)
+
+                MDLabel:
+                    text: "Initializing environment..."
+                    halign: "center"
+                    font_style: "Caption"
+                    theme_text_color: "Custom"
+                    text_color: 0.55, 0.65, 0.78, 1
+
+            Widget:
+                size_hint_y: 1
+
+            # Footer tagline
+            MDLabel:
+                text: "v1.0 · Powered by AI"
+                halign: "center"
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: 0.35, 0.42, 0.55, 1
+                size_hint_y: None
+                height: dp(20)

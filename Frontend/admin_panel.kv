@@ -1,0 +1,160 @@
+<AdminPanelScreen>:
+    name: "admin_panel"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        md_bg_color: 0.96, 0.97, 0.99, 1
+        spacing: 0
+
+        # ── Header ──────────────────────────────────────────────────────────
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: "64dp"
+            padding: "16dp", "8dp"
+            spacing: "12dp"
+            md_bg_color: 0.05, 0.08, 0.16, 1
+
+            MDIcon:
+                icon: "shield-crown-outline"
+                theme_text_color: "Custom"
+                text_color: 0, 0.85, 0.75, 1
+                font_size: "28sp"
+                size_hint_x: None
+                width: "34dp"
+                pos_hint: {"center_y": 0.5}
+
+            MDLabel:
+                id: admin_title_label
+                text: "Admin Panel"
+                font_style: "H6"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                pos_hint: {"center_y": 0.5}
+
+            Widget:
+
+            MDIconButton:
+                icon: "refresh"
+                theme_text_color: "Custom"
+                text_color: 0, 0.85, 0.75, 1
+                size_hint_x: None
+                width: "40dp"
+                pos_hint: {"center_y": 0.5}
+                on_release: root.refresh_current_tab()
+
+            MDIconButton:
+                icon: "logout"
+                theme_text_color: "Custom"
+                text_color: 1, 0.45, 0.45, 1
+                size_hint_x: None
+                width: "40dp"
+                pos_hint: {"center_y": 0.5}
+                on_release: root.logout()
+
+        # ── Stats summary ───────────────────────────────────────────────────
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: "44dp"
+            padding: "12dp", "6dp"
+            spacing: "8dp"
+            md_bg_color: 0.08, 0.12, 0.22, 1
+
+            MDLabel:
+                id: stat_users_label
+                text: "Users: --"
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: 0.85, 0.88, 0.92, 1
+                size_hint_x: 0.34
+
+            MDLabel:
+                id: stat_devices_label
+                text: "Devices: --"
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: 0.85, 0.88, 0.92, 1
+                size_hint_x: 0.33
+                halign: "center"
+
+            MDLabel:
+                id: stat_cities_label
+                text: "Cities: --"
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: 0, 0.85, 0.75, 1
+                size_hint_x: 0.33
+                halign: "right"
+
+        # ── Tab bar ─────────────────────────────────────────────────────────
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: "42dp"
+            padding: "8dp", "4dp"
+            spacing: "4dp"
+            md_bg_color: 1, 1, 1, 1
+
+            MDFlatButton:
+                id: tab_overview_btn
+                text: "Overview"
+                size_hint_x: 0.2
+                on_release: root.switch_tab("overview")
+
+            MDFlatButton:
+                id: tab_users_btn
+                text: "Users"
+                size_hint_x: 0.2
+                on_release: root.switch_tab("users")
+
+            MDFlatButton:
+                id: tab_devices_btn
+                text: "Devices"
+                size_hint_x: 0.2
+                on_release: root.switch_tab("devices")
+
+            MDFlatButton:
+                id: tab_broadcast_btn
+                text: "Broadcast"
+                size_hint_x: 0.2
+                on_release: root.switch_tab("broadcast")
+
+            MDFlatButton:
+                id: tab_audit_btn
+                text: "Audit"
+                size_hint_x: 0.2
+                on_release: root.switch_tab("audit")
+
+        # ── Panel content ───────────────────────────────────────────────────
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+            bar_color: 0, 0.69, 0.64, 0.8
+
+            MDBoxLayout:
+                id: panel_container
+                orientation: "vertical"
+                spacing: "10dp"
+                padding: "14dp"
+                size_hint_y: None
+                height: self.minimum_height
+
+        # ── Bottom bar ──────────────────────────────────────────────────────
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: "56dp"
+            padding: "16dp", "8dp"
+            spacing: "10dp"
+            md_bg_color: 0.96, 0.97, 0.99, 1
+            elevation: 4
+
+            MDRaisedButton:
+                text: "Go to Dashboard"
+                md_bg_color: 0, 0.69, 0.64, 1
+                text_color: 1, 1, 1, 1
+                size_hint_x: 1
+                elevation: 2
+                on_release: root.go_to_dashboard()

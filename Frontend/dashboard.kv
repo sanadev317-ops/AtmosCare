@@ -1,0 +1,1234 @@
+<DashboardScreen>:
+    MDNavigationLayout:
+
+        MDScreenManager:
+            id: main_screen_manager
+
+            Screen:
+                name: "dashboard"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    md_bg_color: 0.96, 0.97, 0.99, 1
+
+                    MDTopAppBar:
+                        id: dashboard_top_bar
+                        title: "AtmosCare"
+                        elevation: 4
+                        md_bg_color: 0.08, 0.12, 0.22, 1
+                        specific_text_color: 1, 1, 1, 1
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
+                        right_action_items: [["refresh", lambda x: root.load_dashboard_data()], ["account", lambda x: app.root.current == "dashboard" and setattr(app.root, "current", "profile")], ["bell", lambda x: root.show_notifications()]]
+
+                    ScrollView:
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            padding: "14dp", "14dp", "14dp", "14dp"
+                            spacing: "12dp"
+                            size_hint_y: None
+                            height: self.minimum_height
+
+                            # ══════════════════════════════════════════════
+                            # HERO AQI CARD
+                            # ══════════════════════════════════════════════
+                            MDCard:
+                                orientation: "vertical"
+                                padding: "16dp"
+                                spacing: "10dp"
+                                radius: [20]
+                                size_hint_y: None
+                                height: "470dp"
+                                md_bg_color: 1, 1, 1, 1
+                                elevation: 2
+
+                                # ── Top row: Location (left) | Last updated (right) ──
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "28dp"
+                                    spacing: "4dp"
+
+                                    MDIcon:
+                                        icon: "map-marker"
+                                        theme_text_color: "Custom"
+                                        text_color: 0, 0.69, 0.64, 1
+                                        size_hint_x: None
+                                        width: "22dp"
+                                        font_size: "18sp"
+                                        pos_hint: {"center_y": 0.5}
+
+                                    MDLabel:
+                                        id: location_label
+                                        text: "Loading location..."
+                                        font_size: "14sp"
+                                        bold: True
+                                        theme_text_color: "Custom"
+                                        text_color: 0.08, 0.12, 0.22, 1
+                                        shorten: True
+                                        shorten_from: "right"
+                                        size_hint_x: 1
+                                        pos_hint: {"center_y": 0.5}
+
+                                    MDIconButton:
+                                        icon: "pencil-outline"
+                                        theme_text_color: "Custom"
+                                        text_color: 0.55, 0.6, 0.7, 1
+                                        size_hint_x: None
+                                        width: "28dp"
+                                        icon_size: "14sp"
+                                        pos_hint: {"center_y": 0.5}
+                                        on_release: setattr(app.root, 'current', 'settings')
+
+                                    MDLabel:
+                                        id: last_updated_label
+                                        text: "--"
+                                        font_size: "10sp"
+                                        theme_text_color: "Custom"
+                                        text_color: 0.55, 0.6, 0.7, 1
+                                        halign: "right"
+                                        size_hint_x: None
+                                        adaptive_width: True
+                                        pos_hint: {"center_y": 0.5}
+
+                                # ── Data source mode row ──
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "22dp"
+                                    spacing: "8dp"
+
+                                    ModeIndicatorWidget:
+                                        id: mode_indicator
+                                        mode: "api"
+                                        font_size: "11sp"
+                                        size_hint_x: 0.55
+                                        size_hint_y: None
+                                        height: "22dp"
+                                        halign: "left"
+                                        valign: "middle"
+
+                                    MDLabel:
+                                        id: source_label
+                                        text: "Model forecast"
+                                        font_size: "10sp"
+                                        theme_text_color: "Custom"
+                                        text_color: 0.55, 0.6, 0.7, 1
+                                        halign: "right"
+                                        shorten: True
+                                        size_hint_x: 0.38
+                                        pos_hint: {"center_y": 0.5}
+
+                                # ── Meta row: section label ──
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "18dp"
+
+                                    MDLabel:
+                                        text: "PREDICTED SMOG (PM2.5)"
+                                        font_size: "10sp"
+                                        bold: True
+                                        theme_text_color: "Custom"
+                                        text_color: 0, 0.69, 0.64, 1
+
+                                # ── Gauge + value ──
+                                AnchorLayout:
+                                    anchor_x: "center"
+                                    anchor_y: "center"
+                                    size_hint_y: None
+                                    height: "180dp"
+
+                                    FloatLayout:
+                                        size_hint: None, None
+                                        size: "180dp", "180dp"
+
+                                        AQIGaugeWidget:
+                                            id: aqi_gauge
+                                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                                            size_hint: 1, 1
+                                            aqi_value: 0
+
+                                        MDLabel:
+                                            id: aqi_value_label
+                                            text: "--"
+                                            font_style: "H2"
+                                            bold: True
+                                            halign: "center"
+                                            valign: "middle"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+                                            pos_hint: {"center_x": 0.5, "center_y": 0.55}
+                                            size_hint: 1, None
+                                            height: "50dp"
+
+                                        MDLabel:
+                                            id: gauge_unit_label
+                                            text: "Predicted PM2.5"
+                                            font_size: "11sp"
+                                            bold: True
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+                                            pos_hint: {"center_x": 0.5, "center_y": 0.35}
+                                            size_hint: 1, None
+                                            height: "18dp"
+
+                                # ── Status badge ──
+                                AnchorLayout:
+                                    anchor_x: "center"
+                                    size_hint_y: None
+                                    height: "28dp"
+
+                                    MDCard:
+                                        size_hint: None, None
+                                        size: "130dp", "24dp"
+                                        radius: [12]
+                                        md_bg_color: 0.93, 1, 0.98, 1
+                                        elevation: 0
+
+                                        MDLabel:
+                                            id: aqi_badge_label
+                                            text: "STATUS"
+                                            font_size: "10sp"
+                                            bold: True
+                                            halign: "center"
+                                            valign: "middle"
+                                            shorten: True
+                                            theme_text_color: "Custom"
+                                            text_color: 0, 0.69, 0.64, 1
+
+                                MDLabel:
+                                    id: aqi_status_label
+                                    text: "Loading..."
+                                    font_size: "15sp"
+                                    bold: True
+                                    halign: "center"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.08, 0.12, 0.22, 1
+                                    size_hint_y: None
+                                    height: "22dp"
+                                    opacity: 0
+
+                                # ── AQI scale: unified segmented bar + labels ──
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "46dp"
+                                    spacing: "6dp"
+
+                                    MDBoxLayout:
+                                        orientation: "horizontal"
+                                        size_hint_y: None
+                                        height: "6dp"
+                                        spacing: "2dp"
+
+                                        MDBoxLayout:
+                                            md_bg_color: 0.14, 0.78, 0.25, 1
+                                            radius: [3, 0, 0, 3]
+                                        MDBoxLayout:
+                                            md_bg_color: 0.9, 0.73, 0.15, 1
+                                        MDBoxLayout:
+                                            md_bg_color: 0.98, 0.55, 0.1, 1
+                                        MDBoxLayout:
+                                            md_bg_color: 0.9, 0.2, 0.2, 1
+                                        MDBoxLayout:
+                                            md_bg_color: 0.6, 0.26, 0.94, 1
+                                        MDBoxLayout:
+                                            md_bg_color: 0.55, 0.08, 0.08, 1
+                                            radius: [0, 3, 3, 0]
+
+                                    MDGridLayout:
+                                        cols: 6
+                                        size_hint_y: None
+                                        height: "14dp"
+                                        spacing: "2dp"
+
+                                        MDLabel:
+                                            text: "Good"
+                                            font_size: "9sp"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+                                        MDLabel:
+                                            text: "Mod"
+                                            font_size: "9sp"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+                                        MDLabel:
+                                            text: "USG"
+                                            font_size: "9sp"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+                                        MDLabel:
+                                            text: "Unh"
+                                            font_size: "9sp"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+                                        MDLabel:
+                                            text: "Very"
+                                            font_size: "9sp"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+                                        MDLabel:
+                                            text: "Hzd"
+                                            font_size: "9sp"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.42, 0.45, 0.52, 1
+
+                            # ══════════════════════════════════════════════
+                            # HEALTH ADVISORY CARD
+                            # ══════════════════════════════════════════════
+                            MDCard:
+                                orientation: "horizontal"
+                                radius: [16]
+                                size_hint_y: None
+                                height: "108dp"
+                                md_bg_color: 1, 0.97, 0.92, 1
+                                elevation: 1
+                                padding: 0, 0
+
+                                # Left accent strip
+                                MDBoxLayout:
+                                    size_hint_x: None
+                                    width: "5dp"
+                                    md_bg_color: 0.92, 0.55, 0.1, 1
+
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    padding: "14dp", "12dp"
+                                    spacing: "6dp"
+
+                                    MDBoxLayout:
+                                        orientation: "horizontal"
+                                        size_hint_y: None
+                                        height: "26dp"
+                                        spacing: "8dp"
+
+                                        MDIcon:
+                                            icon: "alert-circle"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.92, 0.55, 0.1, 1
+                                            size_hint_x: None
+                                            width: "24dp"
+                                            font_size: "22sp"
+                                            pos_hint: {"center_y": 0.5}
+
+                                        MDLabel:
+                                            text: "Health Advisory"
+                                            font_size: "14sp"
+                                            bold: True
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+                                            pos_hint: {"center_y": 0.5}
+
+                                    MDLabel:
+                                        id: alert_label
+                                        text: "Loading air quality data..."
+                                        font_size: "12sp"
+                                        theme_text_color: "Custom"
+                                        text_color: 0.42, 0.45, 0.52, 1
+                                        shorten: True
+                                        shorten_from: "right"
+
+                            # ══════════════════════════════════════════════
+                            # REALTIME POLLUTANTS CARD
+                            # ══════════════════════════════════════════════
+                            MDCard:
+                                orientation: "vertical"
+                                padding: "16dp"
+                                spacing: "12dp"
+                                radius: [20]
+                                size_hint_y: None
+                                height: "430dp"
+                                md_bg_color: 1, 1, 1, 1
+                                elevation: 2
+
+                                # Section header
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "38dp"
+                                    spacing: "10dp"
+
+                                    MDCard:
+                                        size_hint: None, None
+                                        size: "34dp", "34dp"
+                                        radius: [10]
+                                        md_bg_color: 0.90, 0.94, 1, 1
+                                        elevation: 0
+
+                                        MDIcon:
+                                            icon: "molecule"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.22, 0.42, 0.85, 1
+                                            font_size: "20sp"
+                                            halign: "center"
+                                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                                    MDBoxLayout:
+                                        orientation: "vertical"
+                                        pos_hint: {"center_y": 0.5}
+
+                                        MDLabel:
+                                            text: "Realtime Pollutants"
+                                            font_size: "15sp"
+                                            bold: True
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+                                            size_hint_y: None
+                                            height: "20dp"
+
+                                        MDLabel:
+                                            id: pollutants_subtitle_label
+                                            text: "Sensor & API readings"
+                                            font_size: "10sp"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.55, 0.6, 0.7, 1
+                                            size_hint_y: None
+                                            height: "14dp"
+
+                                # 4 rows of 2 pollutant cards
+                                MDGridLayout:
+                                    cols: 2
+                                    spacing: "10dp"
+                                    size_hint_y: None
+                                    height: "262dp"
+                                    row_default_height: "58dp"
+                                    row_force_default: True
+
+                                    # PM2.5
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.9, 0.35, 0.35, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "blur"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.9, 0.35, 0.35, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: pm25_label
+                                                text: "PM2.5: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # PM10
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.85, 0.55, 0.1, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "blur-linear"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.85, 0.55, 0.1, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: pm10_label
+                                                text: "PM10: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # O3
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.22, 0.65, 0.85, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "weather-sunny"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.22, 0.65, 0.85, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: o3_label
+                                                text: "O3: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # NO2
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.6, 0.26, 0.85, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "smog"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.6, 0.26, 0.85, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: no2_label
+                                                text: "NO2: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # CO
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.42, 0.45, 0.52, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "gas-cylinder"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.42, 0.45, 0.52, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: co_label
+                                                text: "CO: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # Smog
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.55, 0.45, 0.3, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "weather-fog"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.55, 0.45, 0.3, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: smog_index_label
+                                                text: "Smog: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # Temperature
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.9, 0.35, 0.2, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "thermometer"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.9, 0.35, 0.2, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: temperature_label
+                                                text: "Temp: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                    # Humidity
+                                    MDCard:
+                                        orientation: "horizontal"
+                                        radius: [12]
+                                        md_bg_color: 0.98, 0.98, 0.99, 1
+                                        elevation: 0
+                                        padding: 0, 0
+                                        size_hint_x: 1
+                                        size_hint_y: None
+                                        height: "58dp"
+
+                                        MDBoxLayout:
+                                            size_hint_x: None
+                                            width: "4dp"
+                                            md_bg_color: 0.22, 0.55, 0.85, 1
+
+                                        MDBoxLayout:
+                                            orientation: "horizontal"
+                                            padding: "10dp", "8dp"
+                                            spacing: "8dp"
+                                            size_hint_x: 1
+
+                                            MDIcon:
+                                                icon: "water-percent"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.22, 0.55, 0.85, 1
+                                                size_hint_x: None
+                                                width: "22dp"
+                                                font_size: "20sp"
+                                                pos_hint: {"center_y": 0.5}
+
+                                            MDLabel:
+                                                id: humidity_label
+                                                text: "Humidity: --"
+                                                font_size: "12sp"
+                                                bold: True
+                                                theme_text_color: "Custom"
+                                                text_color: 0.1, 0.12, 0.18, 1
+                                                pos_hint: {"center_y": 0.5}
+
+                                # Wind (full-width)
+                                MDCard:
+                                    orientation: "horizontal"
+                                    radius: [12]
+                                    md_bg_color: 0.96, 0.99, 0.99, 1
+                                    elevation: 0
+                                    size_hint_y: None
+                                    height: "50dp"
+                                    padding: 0, 0
+
+                                    MDBoxLayout:
+                                        size_hint_x: None
+                                        width: "4dp"
+                                        md_bg_color: 0, 0.69, 0.64, 1
+
+                                    MDBoxLayout:
+                                        orientation: "horizontal"
+                                        padding: "10dp", "8dp"
+                                        spacing: "10dp"
+
+                                        MDIcon:
+                                            icon: "weather-windy"
+                                            theme_text_color: "Custom"
+                                            text_color: 0, 0.69, 0.64, 1
+                                            size_hint_x: None
+                                            width: "24dp"
+                                            font_size: "22sp"
+                                            pos_hint: {"center_y": 0.5}
+
+                                        MDLabel:
+                                            id: wind_label
+                                            text: "Wind: --"
+                                            font_size: "13sp"
+                                            bold: True
+                                            theme_text_color: "Custom"
+                                            text_color: 0.1, 0.12, 0.18, 1
+                                            pos_hint: {"center_y": 0.5}
+
+                            # ══════════════════════════════════════════════
+                            # FORECAST RISK CARD
+                            # ══════════════════════════════════════════════
+                            MDCard:
+                                orientation: "vertical"
+                                padding: "16dp"
+                                spacing: "12dp"
+                                radius: [20]
+                                size_hint_y: None
+                                height: "320dp"
+                                md_bg_color: 1, 1, 1, 1
+                                elevation: 2
+
+                                # Header
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "38dp"
+                                    spacing: "10dp"
+
+                                    MDCard:
+                                        size_hint: None, None
+                                        size: "34dp", "34dp"
+                                        radius: [10]
+                                        md_bg_color: 0.90, 0.99, 0.97, 1
+                                        elevation: 0
+
+                                        MDIcon:
+                                            icon: "chart-timeline-variant-shimmer"
+                                            theme_text_color: "Custom"
+                                            text_color: 0, 0.69, 0.64, 1
+                                            font_size: "20sp"
+                                            halign: "center"
+                                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                                    MDBoxLayout:
+                                        orientation: "vertical"
+                                        pos_hint: {"center_y": 0.5}
+
+                                        MDLabel:
+                                            text: "Forecast Risk"
+                                            font_size: "15sp"
+                                            bold: True
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+                                            size_hint_y: None
+                                            height: "20dp"
+
+                                        MDLabel:
+                                            text: "GRU + SARIMA model forecast"
+                                            font_size: "10sp"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.55, 0.6, 0.7, 1
+                                            size_hint_y: None
+                                            height: "14dp"
+
+                                        MDLabel:
+                                            id: forecast_source_label
+                                            text: "Stacked 7-day PM2.5 prediction"
+                                            font_size: "9sp"
+                                            theme_text_color: "Custom"
+                                            text_color: 0, 0.69, 0.64, 1
+                                            size_hint_y: None
+                                            height: "12dp"
+
+                                # Tomorrow
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    spacing: "6dp"
+                                    size_hint_y: None
+                                    height: "66dp"
+
+                                    MDBoxLayout:
+                                        orientation: "horizontal"
+                                        size_hint_y: None
+                                        height: "22dp"
+
+                                        MDLabel:
+                                            id: forecast_tomorrow_label
+                                            text: "Tomorrow: Loading..."
+                                            font_size: "12sp"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+
+                                        MDLabel:
+                                            id: forecast_tomorrow_badge
+                                            text: "--"
+                                            font_size: "11sp"
+                                            bold: True
+                                            halign: "right"
+                                            theme_text_color: "Custom"
+                                            text_color: 0, 0.69, 0.64, 1
+
+                                    MDProgressBar:
+                                        id: forecast_tomorrow_bar
+                                        value: 0
+                                        color: 0, 0.69, 0.64, 1
+                                        back_color: 0.92, 0.94, 0.96, 1
+
+                                # Next Week
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    spacing: "6dp"
+                                    size_hint_y: None
+                                    height: "66dp"
+
+                                    MDBoxLayout:
+                                        orientation: "horizontal"
+                                        size_hint_y: None
+                                        height: "22dp"
+
+                                        MDLabel:
+                                            id: forecast_week_label
+                                            text: "Next Week: Loading..."
+                                            font_size: "12sp"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+
+                                        MDLabel:
+                                            id: forecast_week_badge
+                                            text: "--"
+                                            font_size: "11sp"
+                                            bold: True
+                                            halign: "right"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.92, 0.55, 0.1, 1
+
+                                    MDProgressBar:
+                                        id: forecast_week_bar
+                                        value: 0
+                                        color: 0.92, 0.55, 0.1, 1
+                                        back_color: 0.92, 0.94, 0.96, 1
+
+                                # Next Month
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    spacing: "6dp"
+                                    size_hint_y: None
+                                    height: "66dp"
+
+                                    MDBoxLayout:
+                                        orientation: "horizontal"
+                                        size_hint_y: None
+                                        height: "22dp"
+
+                                        MDLabel:
+                                            id: forecast_month_label
+                                            text: "Next Month: Loading..."
+                                            font_size: "12sp"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.08, 0.12, 0.22, 1
+
+                                        MDLabel:
+                                            id: forecast_month_badge
+                                            text: "--"
+                                            font_size: "11sp"
+                                            bold: True
+                                            halign: "right"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.9, 0.22, 0.22, 1
+
+                                    MDProgressBar:
+                                        id: forecast_month_bar
+                                        value: 0
+                                        color: 0.9, 0.22, 0.22, 1
+                                        back_color: 0.92, 0.94, 0.96, 1
+
+                            # ══════════════════════════════════════════════
+                            # TREND SNAPSHOT CARD
+                            # ══════════════════════════════════════════════
+                            MDCard:
+                                orientation: "vertical"
+                                padding: "16dp"
+                                spacing: "10dp"
+                                radius: [20]
+                                size_hint_y: None
+                                height: "140dp"
+                                md_bg_color: 1, 1, 1, 1
+                                elevation: 2
+
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "38dp"
+                                    spacing: "10dp"
+
+                                    MDCard:
+                                        size_hint: None, None
+                                        size: "34dp", "34dp"
+                                        radius: [10]
+                                        md_bg_color: 0.90, 0.94, 1, 1
+                                        elevation: 0
+
+                                        MDIcon:
+                                            icon: "trending-up"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.22, 0.42, 0.85, 1
+                                            font_size: "20sp"
+                                            halign: "center"
+                                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                                    MDLabel:
+                                        text: "Trend Snapshot"
+                                        font_size: "15sp"
+                                        bold: True
+                                        theme_text_color: "Custom"
+                                        text_color: 0.08, 0.12, 0.22, 1
+                                        pos_hint: {"center_y": 0.5}
+
+                                MDLabel:
+                                    id: trends_7days_label
+                                    text: "7 days: Loading..."
+                                    font_size: "12sp"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.42, 0.45, 0.52, 1
+
+                                MDLabel:
+                                    id: trends_30days_label
+                                    text: "30 days: Loading..."
+                                    font_size: "12sp"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.42, 0.45, 0.52, 1
+
+                            # Bottom spacer for nav bar
+                            Widget:
+                                size_hint_y: None
+                                height: "84dp"
+
+                    # ══════════════════════════════════════════════
+                    # BOTTOM NAVIGATION BAR
+                    # ══════════════════════════════════════════════
+                    MDCard:
+                        size_hint_y: None
+                        height: "64dp"
+                        md_bg_color: 0.08, 0.12, 0.22, 1
+                        radius: [0]
+                        elevation: 8
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "4dp", "0dp"
+
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "0dp"
+
+                                MDBoxLayout:
+                                    size_hint_y: None
+                                    height: "3dp"
+                                    md_bg_color: 0, 0.82, 0.76, 1
+
+                                MDIconButton:
+                                    icon: "view-dashboard"
+                                    theme_text_color: "Custom"
+                                    text_color: 0, 0.82, 0.76, 1
+                                    icon_size: "22sp"
+                                    pos_hint: {"center_x": 0.5}
+                                MDLabel:
+                                    text: "Dashboard"
+                                    halign: "center"
+                                    font_size: "10sp"
+                                    bold: True
+                                    theme_text_color: "Custom"
+                                    text_color: 0, 0.82, 0.76, 1
+
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "0dp"
+                                Widget:
+                                    size_hint_y: None
+                                    height: "3dp"
+                                MDIconButton:
+                                    icon: "chart-line"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.55, 0.6, 0.7, 1
+                                    icon_size: "22sp"
+                                    pos_hint: {"center_x": 0.5}
+                                    on_release: app.open_analytics()
+                                MDLabel:
+                                    text: "Analytics"
+                                    halign: "center"
+                                    font_size: "10sp"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.55, 0.6, 0.7, 1
+
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "0dp"
+                                Widget:
+                                    size_hint_y: None
+                                    height: "3dp"
+                                MDIconButton:
+                                    icon: "map-marker-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.55, 0.6, 0.7, 1
+                                    icon_size: "22sp"
+                                    pos_hint: {"center_x": 0.5}
+                                    on_release: setattr(app.root, 'current', 'locations')
+                                MDLabel:
+                                    text: "Locations"
+                                    halign: "center"
+                                    font_size: "10sp"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.55, 0.6, 0.7, 1
+
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "0dp"
+                                Widget:
+                                    size_hint_y: None
+                                    height: "3dp"
+                                MDIconButton:
+                                    icon: "cog-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.55, 0.6, 0.7, 1
+                                    icon_size: "22sp"
+                                    pos_hint: {"center_x": 0.5}
+                                    on_release: app.open_settings()
+                                MDLabel:
+                                    text: "Settings"
+                                    halign: "center"
+                                    font_size: "10sp"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.55, 0.6, 0.7, 1
+
+                            # Admin / Authority panel — staff only
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "0dp"
+                                opacity: 1 if app.current_user_role in ("admin", "authority") else 0
+                                disabled: app.current_user_role not in ("admin", "authority")
+                                size_hint_x: 1 if app.current_user_role in ("admin", "authority") else None
+                                width: 0 if app.current_user_role not in ("admin", "authority") else 100
+                                Widget:
+                                    size_hint_y: None
+                                    height: "3dp"
+                                MDIconButton:
+                                    icon: "shield-crown-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.85, 0.30, 0.30, 1
+                                    icon_size: "22sp"
+                                    pos_hint: {"center_x": 0.5}
+                                    on_release: setattr(app.root, 'current', 'admin_panel')
+                                MDLabel:
+                                    text: "Admin"
+                                    halign: "center"
+                                    font_size: "10sp"
+                                    theme_text_color: "Custom"
+                                    text_color: 0.85, 0.30, 0.30, 1
+
+        # ══════════════════════════════════════════════
+        # NAVIGATION DRAWER
+        # ══════════════════════════════════════════════
+        MDNavigationDrawer:
+            id: nav_drawer
+
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: "20dp"
+                spacing: "14dp"
+                md_bg_color: 0.08, 0.12, 0.22, 1
+
+                # Brand header
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_y: None
+                    height: "56dp"
+                    spacing: "12dp"
+
+                    MDCard:
+                        size_hint: None, None
+                        size: "42dp", "42dp"
+                        radius: [11]
+                        md_bg_color: 0.10, 0.18, 0.30, 1
+                        elevation: 0
+                        pos_hint: {"center_y": 0.5}
+
+                        MDIcon:
+                            icon: "weather-hazy"
+                            theme_text_color: "Custom"
+                            text_color: 0, 0.82, 0.76, 1
+                            font_size: "22sp"
+                            halign: "center"
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        pos_hint: {"center_y": 0.5}
+
+                        MDLabel:
+                            text: "AtmosCare"
+                            font_size: "18sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 1, 1, 1, 1
+                            size_hint_y: None
+                            height: "22dp"
+
+                        MDLabel:
+                            text: "Smart Air Monitor"
+                            font_size: "10sp"
+                            theme_text_color: "Custom"
+                            text_color: 0, 0.82, 0.76, 1
+                            size_hint_y: None
+                            height: "14dp"
+
+                MDSeparator:
+                    height: "1dp"
+                    color: 0.2, 0.25, 0.35, 1
+
+                MDList:
+                    OneLineIconListItem:
+                        text: "Dashboard"
+                        theme_text_color: "Custom"
+                        text_color: 0.85, 0.9, 0.95, 1
+                        on_release: app.go_to_dashboard(); nav_drawer.set_state("close")
+                        IconLeftWidget:
+                            icon: "view-dashboard"
+                            theme_text_color: "Custom"
+                            text_color: 0, 0.82, 0.76, 1
+
+                    OneLineIconListItem:
+                        text: "Analytics"
+                        theme_text_color: "Custom"
+                        text_color: 0.85, 0.9, 0.95, 1
+                        on_release: app.open_analytics(); nav_drawer.set_state("close")
+                        IconLeftWidget:
+                            icon: "chart-line"
+                            theme_text_color: "Custom"
+                            text_color: 0.85, 0.9, 0.95, 1
+
+                    OneLineIconListItem:
+                        text: "Location"
+                        theme_text_color: "Custom"
+                        text_color: 0.85, 0.9, 0.95, 1
+                        on_release: setattr(app.root, 'current', 'locations'); nav_drawer.set_state("close")
+                        IconLeftWidget:
+                            icon: "map-marker"
+                            theme_text_color: "Custom"
+                            text_color: 0.85, 0.9, 0.95, 1
+
+                    OneLineIconListItem:
+                        text: "Settings"
+                        theme_text_color: "Custom"
+                        text_color: 0.85, 0.9, 0.95, 1
+                        on_release: app.open_settings(); nav_drawer.set_state("close")
+                        IconLeftWidget:
+                            icon: "cog"
+                            theme_text_color: "Custom"
+                            text_color: 0.85, 0.9, 0.95, 1
+
+                    # Admin / Authority panel
+                    OneLineIconListItem:
+                        text: "Admin Panel" if app.current_user_role == "admin" else "Authority Panel"
+                        theme_text_color: "Custom"
+                        text_color: 0.95, 0.50, 0.50, 1
+                        opacity: 1 if app.current_user_role in ("admin", "authority") else 0
+                        disabled: app.current_user_role not in ("admin", "authority")
+                        on_release: setattr(app.root, 'current', 'admin_panel'); nav_drawer.set_state("close")
+                        IconLeftWidget:
+                            icon: "shield-crown-outline"
+                            theme_text_color: "Custom"
+                            text_color: 0.95, 0.50, 0.50, 1
+
+                    OneLineIconListItem:
+                        text: "Logout"
+                        theme_text_color: "Custom"
+                        text_color: 0.9, 0.3, 0.3, 1
+                        on_release: nav_drawer.set_state("close"); app.logout()
+                        IconLeftWidget:
+                            icon: "logout"
+                            theme_text_color: "Custom"
+                            text_color: 0.9, 0.3, 0.3, 1

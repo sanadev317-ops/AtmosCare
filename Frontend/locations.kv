@@ -1,0 +1,786 @@
+#:kivy 2.0
+#:import MapView kivy_garden.mapview.MapView
+#:import MapMarker kivy_garden.mapview.MapMarker
+
+<LocationsScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: 0.96, 0.97, 0.99, 1
+
+        # ── Header ──
+        MDTopAppBar:
+            title: "Locations"
+            left_action_items: [["arrow-left", lambda x: app.go_to_dashboard()]]
+            elevation: 4
+            md_bg_color: 0.08, 0.12, 0.22, 1
+            specific_text_color: 1, 1, 1, 1
+
+        ScrollView:
+            bar_width: 0
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                padding: "12dp"
+                spacing: "12dp"
+
+                # ══════════════════════════════════════════════
+                # GLOBAL AQI MAP CARD
+                # ══════════════════════════════════════════════
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: "510dp"
+                    padding: "14dp"
+                    spacing: "10dp"
+                    radius: [20]
+                    md_bg_color: 1, 1, 1, 1
+                    elevation: 2
+
+                    # title row
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "44dp"
+                        spacing: "10dp"
+
+                        MDCard:
+                            size_hint: None, None
+                            size: "40dp", "40dp"
+                            radius: [10]
+                            md_bg_color: 0.90, 0.94, 1, 1
+                            elevation: 0
+                            pos_hint: {"center_y": 0.5}
+
+                            MDIcon:
+                                icon: "earth"
+                                theme_text_color: "Custom"
+                                text_color: 0.22, 0.42, 0.85, 1
+                                font_size: "22sp"
+                                halign: "center"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                text: "Global Map"
+                                font_size: "15sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_y: None
+                                height: "20dp"
+
+                            MDLabel:
+                                text: "Google Maps · drag, pan & zoom"
+                                font_size: "10sp"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_y: None
+                                height: "14dp"
+
+                        MDIconButton:
+                            icon: "refresh"
+                            theme_text_color: "Custom"
+                            text_color: 0.22, 0.42, 0.85, 1
+                            size_hint_x: None
+                            width: "36dp"
+                            icon_size: "20sp"
+                            pos_hint: {"center_y": 0.5}
+                            on_release: root.load_map()
+
+                    # status label
+                    MDLabel:
+                        id: map_status_label
+                        text: "Loading map..."
+                        font_size: "10sp"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+                        size_hint_y: None
+                        height: "16dp"
+                        shorten: True
+                        shorten_from: "right"
+
+                    # map container (fills remaining space)
+                    MDCard:
+                        radius: [14]
+                        md_bg_color: 0.88, 0.90, 0.94, 1
+                        elevation: 0
+                        size_hint_y: None
+                        height: "300dp"
+
+                        MDBoxLayout:
+                            id: map_container
+                            radius: [14]
+
+                    # AQI colour legend — 3 cols × 2 rows
+                    MDGridLayout:
+                        cols: 3
+                        size_hint_y: None
+                        height: "40dp"
+                        spacing: "4dp"
+                        padding: "2dp", "0dp"
+
+                        MDLabel:
+                            text: "● Good"
+                            font_size: "10sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 0.14, 0.78, 0.25, 1
+
+                        MDLabel:
+                            text: "● Mod"
+                            font_size: "10sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 0.9, 0.73, 0.15, 1
+
+                        MDLabel:
+                            text: "● USG"
+                            font_size: "10sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 0.98, 0.55, 0.1, 1
+
+                        MDLabel:
+                            text: "● Unh"
+                            font_size: "10sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 0.9, 0.2, 0.2, 1
+
+                        MDLabel:
+                            text: "● V.Unh"
+                            font_size: "10sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 0.6, 0.26, 0.94, 1
+
+                        MDLabel:
+                            text: "● Hzd"
+                            font_size: "10sp"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: 0.55, 0.08, 0.08, 1
+
+                    # zoom buttons
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "40dp"
+                        spacing: "8dp"
+
+                        Widget:
+                            size_hint_x: 1
+
+                        MDRaisedButton:
+                            text: "−"
+                            font_size: "18sp"
+                            size_hint_x: None
+                            width: "48dp"
+                            md_bg_color: 0.08, 0.12, 0.22, 1
+                            text_color: 1, 1, 1, 1
+                            elevation: 2
+                            on_release: root.zoom_map(-1)
+
+                        MDRaisedButton:
+                            text: "+"
+                            font_size: "18sp"
+                            size_hint_x: None
+                            width: "48dp"
+                            md_bg_color: 0, 0.69, 0.64, 1
+                            text_color: 1, 1, 1, 1
+                            elevation: 2
+                            on_release: root.zoom_map(1)
+
+                # ══════════════════════════════════════════════
+                # PAKISTAN SMOG LEVELS CARD
+                # ══════════════════════════════════════════════
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: "14dp"
+                    spacing: "8dp"
+                    radius: [20]
+                    md_bg_color: 1, 1, 1, 1
+                    elevation: 2
+
+                    # Card title
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "40dp"
+                        spacing: "10dp"
+
+                        MDCard:
+                            size_hint: None, None
+                            size: "38dp", "38dp"
+                            radius: [10]
+                            md_bg_color: 1, 0.94, 0.86, 1
+                            elevation: 0
+                            pos_hint: {"center_y": 0.5}
+
+                            MDIcon:
+                                icon: "smog"
+                                theme_text_color: "Custom"
+                                text_color: 0.92, 0.55, 0.1, 1
+                                font_size: "22sp"
+                                halign: "center"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                text: "Pakistan Smog Levels"
+                                font_size: "14sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_y: None
+                                height: "18dp"
+
+                            MDLabel:
+                                text: "Model PM2.5 forecasts by city"
+                                font_size: "10sp"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_y: None
+                                height: "14dp"
+
+                        MDIconButton:
+                            icon: "refresh"
+                            theme_text_color: "Custom"
+                            text_color: 0.92, 0.55, 0.1, 1
+                            size_hint_x: None
+                            width: "36dp"
+                            icon_size: "18sp"
+                            pos_hint: {"center_y": 0.5}
+                            on_release: root.load_pakistan_smog()
+
+                    MDSeparator:
+                        height: "1dp"
+                        color: 0.90, 0.93, 0.97, 1
+
+                    # ── Lahore ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.9, 0.2, 0.2, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Lahore"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_lahore_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.9, 0.2, 0.2, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_lahore_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Karachi ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.98, 0.55, 0.1, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Karachi"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_karachi_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.98, 0.55, 0.1, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_karachi_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Islamabad ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.14, 0.78, 0.25, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Islamabad"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_islamabad_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.14, 0.78, 0.25, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_islamabad_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Peshawar ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.9, 0.73, 0.15, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Peshawar"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_peshawar_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.9, 0.73, 0.15, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_peshawar_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Quetta ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.14, 0.78, 0.25, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Quetta"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_quetta_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.14, 0.78, 0.25, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_quetta_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Multan ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.9, 0.2, 0.2, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Multan"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_multan_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.9, 0.2, 0.2, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_multan_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Faisalabad ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.98, 0.55, 0.1, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Faisalabad"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_faisalabad_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.98, 0.55, 0.1, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_faisalabad_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    # ── Rawalpindi ──
+                    MDCard:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "46dp"
+                        radius: [10]
+                        md_bg_color: 0.98, 0.98, 1, 1
+                        elevation: 0
+                        padding: 0, 0
+
+                        MDBoxLayout:
+                            size_hint_x: None
+                            width: "4dp"
+                            md_bg_color: 0.9, 0.73, 0.15, 1
+                            radius: [10, 0, 0, 10]
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: "10dp", "4dp"
+                            spacing: "6dp"
+
+                            MDLabel:
+                                text: "Rawalpindi"
+                                font_size: "13sp"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 0.08, 0.12, 0.22, 1
+                                size_hint_x: 0.40
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_rawalpindi_aqi
+                                text: "—"
+                                font_size: "14sp"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: 0.9, 0.73, 0.15, 1
+                                size_hint_x: 0.18
+                                pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                id: smog_rawalpindi_status
+                                text: "Loading..."
+                                font_size: "10sp"
+                                halign: "right"
+                                theme_text_color: "Custom"
+                                text_color: 0.55, 0.6, 0.7, 1
+                                size_hint_x: 0.42
+                                pos_hint: {"center_y": 0.5}
+
+                    MDLabel:
+                        id: smog_updated_label
+                        text: "Fetching live data..."
+                        font_size: "9sp"
+                        halign: "right"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+                        size_hint_y: None
+                        height: "16dp"
+
+                # bottom spacer
+                Widget:
+                    size_hint_y: None
+                    height: "10dp"
+
+        # ══════════════════════════════════════════════
+        # BOTTOM NAVIGATION BAR
+        # ══════════════════════════════════════════════
+        MDCard:
+            size_hint_y: None
+            height: "64dp"
+            md_bg_color: 0.08, 0.12, 0.22, 1
+            radius: [0]
+            elevation: 8
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                padding: "4dp", "0dp"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "0dp"
+                    Widget:
+                        size_hint_y: None
+                        height: "3dp"
+                    MDIconButton:
+                        icon: "view-dashboard-outline"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+                        icon_size: "22sp"
+                        pos_hint: {"center_x": 0.5}
+                        on_release: app.go_to_dashboard()
+                    MDLabel:
+                        text: "Dashboard"
+                        halign: "center"
+                        font_size: "10sp"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "0dp"
+                    Widget:
+                        size_hint_y: None
+                        height: "3dp"
+                    MDIconButton:
+                        icon: "chart-line"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+                        icon_size: "22sp"
+                        pos_hint: {"center_x": 0.5}
+                        on_release: app.open_analytics()
+                    MDLabel:
+                        text: "Analytics"
+                        halign: "center"
+                        font_size: "10sp"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "0dp"
+                    MDBoxLayout:
+                        size_hint_y: None
+                        height: "3dp"
+                        md_bg_color: 0, 0.82, 0.76, 1
+                    MDIconButton:
+                        icon: "map-marker"
+                        theme_text_color: "Custom"
+                        text_color: 0, 0.82, 0.76, 1
+                        icon_size: "22sp"
+                        pos_hint: {"center_x": 0.5}
+                    MDLabel:
+                        text: "Locations"
+                        halign: "center"
+                        font_size: "10sp"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: 0, 0.82, 0.76, 1
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "0dp"
+                    Widget:
+                        size_hint_y: None
+                        height: "3dp"
+                    MDIconButton:
+                        icon: "cog-outline"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1
+                        icon_size: "22sp"
+                        pos_hint: {"center_x": 0.5}
+                        on_release: app.open_settings()
+                    MDLabel:
+                        text: "Settings"
+                        halign: "center"
+                        font_size: "10sp"
+                        theme_text_color: "Custom"
+                        text_color: 0.55, 0.6, 0.7, 1

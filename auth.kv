@@ -1,0 +1,98 @@
+WindowManager:
+    SignUpScreen:
+    LoginScreen:
+
+<SignUpScreen>:
+    name: "signup"
+    MDFloatLayout:
+
+        MDLabel:
+            text: "Create Account"
+            halign: "center"
+            pos_hint: {"center_y": 0.9}
+            font_style: "H5"
+
+        MDTextField:
+            id: username
+            hint_text: "Username"
+            text_color_normal: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_normal: 0.8, 0.8, 0.8, 1
+            hint_text_color_focus: 0, 0, 0, 0  # hides hint when typing
+            pos_hint: {"center_x": 0.5, "center_y": 0.7}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: email
+            hint_text: "Email"
+            text_color_normal: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_normal: 0.8, 0.8, 0.8, 1
+            hint_text_color_focus: 0, 0, 0, 0
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: password
+            hint_text: "Password"
+            password: True
+            text_color_normal: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_normal: 0.8, 0.8, 0.8, 1
+            hint_text_color_focus: 0, 0, 0, 0
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            size_hint_x: 0.8
+
+        MDRaisedButton:
+            text: "Sign Up"
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            size_hint_x: 0.6
+            on_release: root.register_user()
+
+        MDTextButton:
+            text: "Already have an account? Log In"
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            on_release: root.go_to_login()
+
+
+<LoginScreen>:
+    name: "login"
+    MDFloatLayout:
+
+        MDLabel:
+            text: "Welcome Back"
+            halign: "center"
+            pos_hint: {"center_y": 0.9}
+            font_style: "H5"
+
+        MDTextField:
+            id: email
+            hint_text: "Email"
+            text_color_normal: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_normal: 0.8, 0.8, 0.8, 1
+            hint_text_color_focus: 0, 0, 0, 0
+            pos_hint: {"center_x": 0.5, "center_y": 0.7}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: password
+            hint_text: "Password"
+            password: True
+            text_color_normal: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_normal: 0.8, 0.8, 0.8, 1
+            hint_text_color_focus: 0, 0, 0, 0
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            size_hint_x: 0.8
+
+        MDRaisedButton:
+            text: "Log In"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            size_hint_x: 0.6
+            on_release: root.login_user()
+
+        MDTextButton:
+            text: "Don’t have an account? Sign Up"
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            on_release: root.go_to_signup()
