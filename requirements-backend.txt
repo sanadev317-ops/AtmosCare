@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
-pymongo
+pymongo[srv]
 requests
 python-dotenv
 numpy
@@ -12,3 +12,4 @@ statsmodels
 pydantic
 xgboost
 pyyaml
+dnspython

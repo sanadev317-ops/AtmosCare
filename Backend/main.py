@@ -111,7 +111,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-mongo_client = MongoClient(DATABASE_URI, serverSelectionTimeoutMS=3000)
+mongo_client = MongoClient(DATABASE_URI, serverSelectionTimeoutMS=10000)
 db = mongo_client[DATABASE_NAME]
 iot_data: Collection = db["iot_data"]
 predictions: Collection = db["predictions"]

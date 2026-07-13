@@ -7,7 +7,7 @@ if not DATABASE_URI:
     DATABASE_URI = "mongodb://localhost:27017"
 
 # Connect to MongoDB
-client = MongoClient(DATABASE_URI, serverSelectionTimeoutMS=3000)
+client = MongoClient(DATABASE_URI, serverSelectionTimeoutMS=10000)
 
 # Create or use database
 db = client[DATABASE_NAME]

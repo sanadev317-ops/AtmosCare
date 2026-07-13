@@ -55,6 +55,6 @@ DATABASE_NAME = _get_env(
 MONGO_URI = DATABASE_URI
 DB_NAME = DATABASE_NAME
 
-SMTP_FROM = _get_env("SMTP_FROM", "saadshakil285@gmail.com")
-SMTP_USERNAME = _get_env("SMTP_USERNAME", "saadshakil285@gmail.com")
-SMTP_PASSWORD = _get_env("SMTP_PASSWORD", "hyib hrrp wpcl tpyh")
+SMTP_FROM = _get_env("SMTP_FROM", "")
+SMTP_USERNAME = _get_env("SMTP_USERNAME", "")
+SMTP_PASSWORD = _get_env("SMTP_PASSWORD", "")
