@@ -28,8 +28,8 @@ source.exclude_dirs = tests, bin, venv, __pycache__, .buildozer, .history
 version = 1.0
 
 # (list) Application requirements
-# MODIFIED: Removed version pins from kivy and kivymd. Buildozer needs to fetch matching recipes natively.
-requirements = python3,kivy,kivymd,requests,plyer,urllib3,certifi,charset-normalizer,idna,pillow
+# CRITICAL FIX: Explicitly pinning master branches allows compilation with Cython 3.x seamlessly.
+requirements = python3,kivy==master,kivymd==master,requests,plyer,urllib3,certifi,charset-normalizer,idna,pillow
 
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/assets/logo.png
@@ -38,7 +38,6 @@ requirements = python3,kivy,kivymd,requests,plyer,urllib3,certifi,charset-normal
 #icon.filename = %(source.dir)s/assets/logo.png
 
 # (list) Supported orientations
-# Valid options are: landscape, portrait, portrait-reverse, landscape-reverse
 orientation = portrait
 
 # (bool) Indicate if the application should be fullscreen or not
@@ -57,13 +56,12 @@ android.minapi = 21
 android.sdk = 33
 
 # (str) Android NDK version to use
-# MODIFIED: Changed 25b to 25c. Kivy 2.3+ compilation fails on NDK 25b due to a known toolchain bug.
 android.ndk = 25c
 
-# ADDED: Forces Buildozer to download missing components like AIDL dynamically on the GitHub runner.
+# Forces Buildozer to download missing components like AIDL dynamically on the GitHub runner.
 android.skip_update = False
 
-# ADDED: Forces the Android SDK manager to accept licenses automatically, resolving your previous crash.
+# Forces the Android SDK manager to accept licenses automatically, resolving your previous crash.
 android.accept_sdk_license = True
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
