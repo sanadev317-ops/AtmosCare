@@ -50,8 +50,17 @@ jobs:
       - name: Build APK (debug)
         working-directory: Frontend
         run: |
+          # Crucial: Unset GitHub's pre-installed NDK paths so Buildozer can use its own r25c
+          unset ANDROID_NDK
+          unset ANDROID_NDK_HOME
+          unset ANDROID_NDK_ROOT
+          
+          # Automatically accept SDK licenses
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
+          
+          # Run the build
           buildozer -v android debug
+
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
