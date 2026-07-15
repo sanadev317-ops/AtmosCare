@@ -17,28 +17,19 @@
             Widget:
                 size_hint_y: 1
 
-            # Decorative logo container with teal ring accent
+            # App logo (same asset used for Android launcher icon)
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
                 size_hint_y: None
-                height: dp(180)
+                height: dp(200)
 
-                MDBoxLayout:
+                Image:
+                    source: "assets/logo.png"
                     size_hint: None, None
-                    size: dp(160), dp(160)
-                    md_bg_color: 0.12, 0.17, 0.30, 1
-                    radius: [dp(80)]
-
-                    AnchorLayout:
-                        anchor_x: "center"
-                        anchor_y: "center"
-
-                        MDIcon:
-                            icon: "weather-hazy"
-                            font_size: "96sp"
-                            theme_text_color: "Custom"
-                            text_color: 0, 0.82, 0.76, 1
+                    size: dp(180), dp(180)
+                    allow_stretch: True
+                    keep_ratio: True
 
             Widget:
                 size_hint_y: None

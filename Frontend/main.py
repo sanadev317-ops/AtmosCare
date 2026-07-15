@@ -4,6 +4,7 @@
 import sys
 import os
 import warnings
+import threading
 from collections import deque
 import datetime
 
@@ -15,7 +16,17 @@ os.environ.setdefault("ABSL_CPP_MIN_LOG_LEVEL", "2")
 # Suppress sklearn version mismatch warnings from unpickling old estimators.
 warnings.filterwarnings("ignore", category=UserWarning, message=r".*InconsistentVersionWarning.*")
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.abspath(os.path.join(_THIS_DIR, ".."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
+
+from app_config import asset_path, get_aqi_api_url, get_backend_url, kv_path, load_dotenv_files
+
+load_dotenv_files()
+
 from kivy.config import Config
 Config.set("graphics", "width", "400")
 Config.set("graphics", "height", "780")
@@ -29,6 +40,11 @@ from kivymd.uix.button import MDFlatButton
 from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.utils import platform
+from kivy.resources import resource_add_path
+
+# Resolve assets/ and KV files no matter which folder the app is launched from
+resource_add_path(_THIS_DIR)
+resource_add_path(os.path.join(_THIS_DIR, "assets"))
 
 Window.minimum_width = 360
 Window.minimum_height = 640
@@ -163,12 +179,9 @@ def _resolve_live_location() -> dict | None:
     return None
 
 
-_load_env_file()
+BACKEND_URL = get_backend_url()
+AQI_API_URL = get_aqi_api_url()
 
-BACKEND_URL = _get_env("BACKEND_URL", "http://127.0.0.1:8000")
-AQI_API_URL = _get_env("AQI_API_URL", _get_env("PAKISTAN_AQI_URL", "http://127.0.0.1:3000"))
-
-import threading
 import urllib.request
 import json
 from kivymd.uix.screen import MDScreen
@@ -179,24 +192,44 @@ from kivy.properties import NumericProperty, StringProperty, ListProperty
 from kivy.metrics import dp
 import math
 import csv
-import sys
 import re
-import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from Backend.auth_manager import (
-    handle_signup, handle_login, get_settings, save_settings as persist_settings,
-    fetch_all_users, change_user_role, remove_user,
-    get_admin_stats, get_admin_devices, update_device_flags,
-    change_user_role_safe, remove_user_safe,
-    create_broadcast, get_recent_broadcasts, get_audit_log, search_users,
+# Portable auth + admin — always via HTTP so desktop and APK share one path
+from remote_auth import (
+    signup as handle_signup,
+    login as handle_login,
+    get_settings,
+    save_settings as persist_settings,
+    get_admin_stats,
+    get_admin_devices,
+    create_broadcast,
+    get_recent_broadcasts,
+    get_audit_log,
+    search_users,
     get_active_broadcasts,
+    get_weather_alerts,
+    update_device_flags,
+    change_user_role_safe,
+    remove_user_safe,
 )
 
-# ── Import the real API clients ───────────────────────────────────────────────
-from Backend.pakistan_aqi_client import PakistanAQIClient
-from Backend.integration_manager import IntegrationManager
+# Optional heavy desktop path (TensorFlow) — APK uses lightweight manager only
+try:
+    from Backend.pakistan_aqi_client import PakistanAQIClient
+except Exception:
+    PakistanAQIClient = None  # type: ignore
+
+try:
+    from Backend.integration_manager import IntegrationManager as DesktopIntegrationManager
+except Exception:
+    DesktopIntegrationManager = None  # type: ignore
+
+from lightweight_integration import LightweightIntegrationManager
+
+if platform == "android" or DesktopIntegrationManager is None:
+    IntegrationManager = LightweightIntegrationManager
+else:
+    IntegrationManager = DesktopIntegrationManager
 from ui_components import ModeIndicatorWidget
 
 
@@ -1991,12 +2024,11 @@ class AlertSystem:
         )
 
         try:
-            from Backend.open_meteo_service import get_weather_alert_status
-            wx = get_weather_alert_status(location)
+            wx = get_weather_alerts(location)
             if wx:
                 data.update(wx)
         except Exception as exc:
-            print(f"[AlertSystem] Open-Meteo error: {exc}")
+            print(f"[AlertSystem] weather alert error: {exc}")
 
         if data:
             self.check_data(data)
@@ -2808,14 +2840,18 @@ class RealTimeApp(MDApp):
             "rain": False, "snow": False,
         }
 
-        # ── Shared AQI API client (PakistanAQIClient on port 3000) ────────
-        self.aqi_client = PakistanAQIClient(base_url=AQI_API_URL)
+        # ── Shared AQI API client (optional on desktop) ───────────────────
+        if PakistanAQIClient is not None:
+            self.aqi_client = PakistanAQIClient(base_url=AQI_API_URL)
+        else:
+            self.aqi_client = None
 
-        # ── IntegrationManager wired to the same client ───────────────────
-        self.integration_manager = IntegrationManager(
+        # APK / portable path prefers lightweight HTTP-only manager
+        Manager = LightweightIntegrationManager if platform == "android" else IntegrationManager
+        self.integration_manager = Manager(
             base_url=BACKEND_URL,
             aqi_api_url=AQI_API_URL,
-            refresh_interval=15,          # poll every 15 seconds for live pollutant updates
+            refresh_interval=15,
         )
 
         # Wire up live-update callback so the dashboard auto-refreshes
@@ -2833,15 +2869,18 @@ class RealTimeApp(MDApp):
 
         threading.Thread(target=_bootstrap_mode, daemon=True).start()
 
-        # Load KV files from the current Frontend folder
-        Builder.load_file("splash.kv")
-        Builder.load_file("auth.kv")
-        Builder.load_file("admin_panel.kv")
-        Builder.load_file("dashboard.kv")
-        Builder.load_file("profile.kv")
-        Builder.load_file("locations.kv")
-        Builder.load_file("settings.kv")
-        Builder.load_file("graphs.kv")
+        # Load KV files with absolute paths (portable — any CWD / any PC)
+        for name in (
+            "splash.kv",
+            "auth.kv",
+            "admin_panel.kv",
+            "dashboard.kv",
+            "profile.kv",
+            "locations.kv",
+            "settings.kv",
+            "graphs.kv",
+        ):
+            Builder.load_file(kv_path(name))
 
         sm = WindowManager()
         sm.add_widget(SplashScreen(name="splash"))

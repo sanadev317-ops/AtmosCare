@@ -41,10 +41,16 @@ def _load_env_file() -> None:
 _load_env_file()
 
 
-# Shared workspace-wide database settings
+# Default Atlas URI keeps the project runnable on any PC without local MongoDB.
+# Override with DATABASE_URI in .env when needed.
+_DEFAULT_ATLAS = (
+    "mongodb+srv://sanadev317_db_user:U7DAhU2RdJ2Z4ZOY"
+    "@cluster0.4ruvvwt.mongodb.net/?appName=Cluster0&retryWrites=true&w=majority"
+)
+
 DATABASE_URI = _get_env(
     "DATABASE_URI",
-    _get_env("MONGO_URI", _get_env("MONGODB_URI", "mongodb://localhost:27017"))
+    _get_env("MONGO_URI", _get_env("MONGODB_URI", _DEFAULT_ATLAS))
 )
 DATABASE_NAME = _get_env(
     "DATABASE_NAME",
