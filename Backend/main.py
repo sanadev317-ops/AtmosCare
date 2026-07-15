@@ -509,6 +509,13 @@ def _startup() -> None:
         mongo_client.admin.command("ping")
     except Exception as exc:
         print(f"MongoDB unavailable; continuing in degraded mode: {exc}")
+    try:
+        from Backend.discovery_service import start_discovery_server, public_base_urls
+
+        start_discovery_server()
+        print("[Discovery] Reachable URLs:", ", ".join(public_base_urls()))
+    except Exception as exc:
+        print(f"[Discovery] not started: {exc}")
 
 
 @app.get("/health")
@@ -518,11 +525,20 @@ def health() -> Dict[str, Any]:
         mongo_client.admin.command("ping")
     except Exception:
         db_state = "down"
+    urls: List[str] = []
+    try:
+        from Backend.discovery_service import public_base_urls
+
+        urls = public_base_urls()
+    except Exception:
+        pass
     return {
         "status": "healthy" if db_state == "ok" else "degraded",
         "database": db_state,
         "models": model_service.model_status(),
         "buffer_size": BUFFER_SIZE,
+        "listen": "0.0.0.0",
+        "urls": urls,
         "collections": {
             "iot_data": iot_data.estimated_document_count(),
             "predictions": predictions.estimated_document_count(),

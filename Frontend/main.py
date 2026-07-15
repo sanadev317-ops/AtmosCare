@@ -23,7 +23,14 @@ if _PROJECT_ROOT not in sys.path:
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
-from app_config import asset_path, get_aqi_api_url, get_backend_url, kv_path, load_dotenv_files
+from app_config import (
+    asset_path,
+    get_aqi_api_url,
+    get_backend_url,
+    kv_path,
+    load_dotenv_files,
+    refresh_backend_url,
+)
 
 load_dotenv_files()
 
@@ -2839,6 +2846,11 @@ class RealTimeApp(MDApp):
             "name": "User", "location": "Unknown Location",
             "rain": False, "snow": False,
         }
+
+        # Auto-detect backend on LAN (UDP) / localhost / subnet — BACKEND_URL=auto
+        global BACKEND_URL
+        BACKEND_URL = refresh_backend_url()
+        print(f"[AtmosCare] Using backend: {BACKEND_URL}")
 
         # ── Shared AQI API client (optional on desktop) ───────────────────
         if PakistanAQIClient is not None:

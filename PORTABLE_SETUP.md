@@ -40,28 +40,32 @@ Atlas Network Access must allow your IP (or `0.0.0.0/0`).
 
 App icon and launch splash use `Frontend/assets/logo.png` → `icon.png` / `presplash.png`.
 
-### Important: phone must reach the backend
+### Phone / APK — automatic IP detection
 
-The APK does **not** bundle MongoDB or TensorFlow. It talks to the backend over HTTP.
+`BACKEND_URL` is set to **`auto`** by default. The app:
 
-Before building (or after install by editing/rebuilding), set your public or LAN backend URL in:
+1. Broadcasts a LAN discovery probe (UDP **3847**)
+2. Tries localhost / Android emulator host (`10.0.2.2`)
+3. Tries common gateway IPs on your Wi‑Fi subnet
+4. Uses the first URL that answers `/health`
 
-`Frontend/config.json`
+Backend binds **`0.0.0.0:8000`** (all interfaces) and answers discovery probes.
+
+**Same Wi‑Fi:** start `.\run_atmoscare.ps1` on the PC, install the APK — no manual IP needed.
+
+Windows firewall: allow inbound **TCP 8000** and **UDP 3847**.
+
+Optional override in `Frontend/config.json`:
 
 ```json
-{
-  "BACKEND_URL": "http://YOUR_PC_LAN_IP:8000"
-}
+{ "BACKEND_URL": "auto" }
 ```
 
-Examples:
+or a fixed cloud URL:
 
-- Same Wi‑Fi as PC: `http://192.168.1.25:8000`
-- Cloud host (Render / Railway / VPS): `https://your-api.example.com`
-
-Then rebuild the APK so the URL is baked in.
-
-Windows firewall: allow inbound **TCP 8000** when using LAN IP.
+```json
+{ "BACKEND_URL": "https://your-api.example.com" }
+```
 
 ---
 

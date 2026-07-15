@@ -1,4 +1,4 @@
 {
-  "BACKEND_URL": "http://127.0.0.1:8000",
+  "BACKEND_URL": "auto",
   "AQI_API_URL": "http://127.0.0.1:3000"
 }
